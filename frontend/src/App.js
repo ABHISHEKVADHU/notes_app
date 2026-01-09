@@ -1,151 +1,182 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-// 🔹 Products array: purane + naye products
-const products = [
-  {
-    id: 1,
-    name: "Apple MacBook Air",
-    price: 85000,
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-  },
-  {
-    id: 2,
-    name: "iPhone 14",
-    price: 72000,
-    image: "https://images.unsplash.com/photo-1664478546384-d57ffe74a7b9",
-  },
-  {
-    id: 3,
-    name: "Sony Headphones",
-    price: 4999,
-    image: "https://images.unsplash.com/photo-1518443895471-1c7fda8a7b7d",
-  },
-  {
-    id: 4,
-    name: "Smart Watch",
-    price: 6999,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
-  },
-  {
-    id: 5,
-    name: "Wireless Mouse",
-    price: 999,
-    image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3",
-  },
-  {
-    id: 6,
-    name: "Bluetooth Speaker",
-    price: 2999,
-    image: "https://images.unsplash.com/photo-1585386959984-a41552231693",
-  },
-  {
-    id: 7,
-    name: "Gaming Keyboard",
-    price: 3499,
-    image: "https://images.unsplash.com/photo-1606813905407-d5f796935a8f",
-  },
-  {
-    id: 8,
-    name: "DSLR Camera",
-    price: 45000,
-    image: "https://images.unsplash.com/photo-1519183071298-a2962be54afa",
-  },
-  {
-    id: 9,
-    name: "External Hard Drive",
-    price: 3999,
-    image: "https://images.unsplash.com/photo-1581092913512-1d3d3b0a13f1",
-  },
-  {
-    id: 10,
-    name: "Tablet",
-    price: 25000,
-    image: "https://images.unsplash.com/photo-1587825140504-ec0c22c9c19f",
-  },
+/* ===========================
+   MOCK PRODUCT DATA
+=========================== */
+const PRODUCTS = [
+  { id: 1, name: "MacBook Air", price: 85000, category: "Laptop" },
+  { id: 2, name: "iPhone 14", price: 72000, category: "Mobile" },
+  { id: 3, name: "Headphones", price: 4999, category: "Accessories" },
+  { id: 4, name: "Smart Watch", price: 6999, category: "Accessories" },
+  { id: 5, name: "Keyboard", price: 3499, category: "Accessories" },
+  { id: 6, name: "Mouse", price: 999, category: "Accessories" },
+  { id: 7, name: "DSLR", price: 45000, category: "Camera" },
+  { id: 8, name: "Tablet", price: 25000, category: "Tablet" },
 ];
 
-function App() {
-  const [sortAsc, setSortAsc] = useState(true);
-
-  // 🔹 Sort products based on price
-  const sortedProducts = [...products].sort((a, b) =>
-    sortAsc ? a.price - b.price : b.price - a.price
-  );
-
+/* ===========================
+   HEADER COMPONENT
+=========================== */
+function Header({ cartCount }) {
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1 style={{ textAlign: "center" }}>🛒 Online E-Commerce Store</h1>
+    <header style={styles.header}>
+      <h1>🛒 DevOps E-Commerce</h1>
+      <div>Cart Items: {cartCount}</div>
+    </header>
+  );
+}
 
-      {/* 🔹 Sort Button */}
-      <div style={{ textAlign: "center", margin: "20px 0" }}>
-        <button
-          onClick={() => setSortAsc(!sortAsc)}
-          style={{
-            padding: "10px 20px",
-            cursor: "pointer",
-            borderRadius: "5px",
-            border: "none",
-            background: "#007bff",
-            color: "#fff",
-          }}
-        >
-          Sort by Price: {sortAsc ? "Low to High" : "High to Low"}
-        </button>
-      </div>
-
-      {/* 🔹 Product Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px",
-          marginTop: "30px",
-        }}
-      >
-        {sortedProducts.map((product) => (
-          <div
-            key={product.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "10px",
-              padding: "15px",
-              textAlign: "center",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-            <img
-              src={product.image}
-              alt={product.name}
-              style={{
-                width: "100%",
-                height: "150px",
-                objectFit: "cover",
-                borderRadius: "8px",
-              }}
-            />
-
-            <h3 style={{ margin: "10px 0" }}>{product.name}</h3>
-            <p style={{ fontWeight: "bold" }}>₹ {product.price}</p>
-
-            <button
-              style={{
-                background: "#28a745",
-                color: "white",
-                border: "none",
-                padding: "10px",
-                width: "100%",
-                cursor: "pointer",
-                borderRadius: "5px",
-              }}
-            >
-              Add to Cart
-            </button>
-          </div>
-        ))}
-      </div>
+/* ===========================
+   PRODUCT CARD
+=========================== */
+function ProductCard({ product, onAdd }) {
+  return (
+    <div style={styles.card}>
+      <h3>{product.name}</h3>
+      <p>₹ {product.price}</p>
+      <p>{product.category}</p>
+      <button onClick={() => onAdd(product)}>Add to Cart</button>
     </div>
   );
 }
+
+/* ===========================
+   PRODUCT LIST
+=========================== */
+function ProductList({ products, onAdd }) {
+  return (
+    <div style={styles.grid}>
+      {products.map((p) => (
+        <ProductCard key={p.id} product={p} onAdd={onAdd} />
+      ))}
+    </div>
+  );
+}
+
+/* ===========================
+   CART COMPONENT
+=========================== */
+function Cart({ cart, onRemove }) {
+  return (
+    <div style={styles.cart}>
+      <h2>🧺 Cart</h2>
+      {cart.length === 0 && <p>No items in cart</p>}
+      {cart.map((item, index) => (
+        <div key={index} style={styles.cartItem}>
+          <span>{item.name}</span>
+          <span>₹ {item.price}</span>
+          <button onClick={() => onRemove(index)}>Remove</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ===========================
+   FILTER BAR
+=========================== */
+function FilterBar({ setCategory, setSort }) {
+  return (
+    <div style={styles.filter}>
+      <select onChange={(e) => setCategory(e.target.value)}>
+        <option value="ALL">All</option>
+        <option value="Laptop">Laptop</option>
+        <option value="Mobile">Mobile</option>
+        <option value="Accessories">Accessories</option>
+        <option value="Camera">Camera</option>
+        <option value="Tablet">Tablet</option>
+      </select>
+
+      <select onChange={(e) => setSort(e.target.value)}>
+        <option value="ASC">Price Low → High</option>
+        <option value="DESC">Price High → Low</option>
+      </select>
+    </div>
+  );
+}
+
+/* ===========================
+   MAIN APP
+=========================== */
+function App() {
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [category, setCategory] = useState("ALL");
+  const [sort, setSort] = useState("ASC");
+
+  /* MOCK API CALL */
+  useEffect(() => {
+    setTimeout(() => {
+      setProducts(PRODUCTS);
+    }, 500);
+  }, []);
+
+  /* FILTER + SORT LOGIC */
+  const filteredProducts = products
+    .filter((p) => category === "ALL" || p.category === category)
+    .sort((a, b) =>
+      sort === "ASC" ? a.price - b.price : b.price - a.price
+    );
+
+  const addToCart = (product) => {
+    setCart([...cart, product]);
+  };
+
+  const removeFromCart = (index) => {
+    const updated = [...cart];
+    updated.splice(index, 1);
+    setCart(updated);
+  };
+
+  return (
+    <div style={styles.app}>
+      <Header cartCount={cart.length} />
+      <FilterBar setCategory={setCategory} setSort={setSort} />
+      <ProductList products={filteredProducts} onAdd={addToCart} />
+      <Cart cart={cart} onRemove={removeFromCart} />
+    </div>
+  );
+}
+
+/* ===========================
+   STYLES (INLINE)
+=========================== */
+const styles = {
+  app: { fontFamily: "Arial", padding: 20 },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    background: "#222",
+    color: "#fff",
+    padding: 15,
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: 15,
+    marginTop: 20,
+  },
+  card: {
+    border: "1px solid #ddd",
+    padding: 15,
+    borderRadius: 8,
+  },
+  filter: {
+    display: "flex",
+    gap: 10,
+    marginTop: 15,
+  },
+  cart: {
+    marginTop: 30,
+    borderTop: "2px solid #000",
+    paddingTop: 10,
+  },
+  cartItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+};
 
 export default App;
 

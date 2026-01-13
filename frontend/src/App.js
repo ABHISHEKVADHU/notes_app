@@ -1,28 +1,58 @@
 import React, { useState, useEffect } from "react";
 
 /* ===========================
-   MOCK PRODUCT DATA
+   PRODUCT DATA
 =========================== */
 const PRODUCTS = [
-  { id: 1, name: "MacBook Air", price: 85000, category: "Laptop" },
-  { id: 2, name: "iPhone 14", price: 72000, category: "Mobile" },
-  { id: 3, name: "Headphones", price: 4999, category: "Accessories" },
-  { id: 4, name: "Smart Watch", price: 6999, category: "Accessories" },
-  { id: 5, name: "Keyboard", price: 3499, category: "Accessories" },
-  { id: 6, name: "Mouse", price: 999, category: "Accessories" },
-  { id: 7, name: "DSLR", price: 45000, category: "Camera" },
-  { id: 8, name: "Tablet", price: 25000, category: "Tablet" },
+  {
+    id: 1,
+    name: "MacBook Air M1",
+    price: 85000,
+    category: "Laptop",
+    image:
+      "https://rukminim2.flixcart.com/image/416/416/kruyw7k0/computer/n/d/w/na-thin-and-light-laptop-apple-original-imag5jt7zpmhsrpm.jpeg",
+  },
+  {
+    id: 2,
+    name: "iPhone 14",
+    price: 72000,
+    category: "Mobile",
+    image:
+      "https://rukminim2.flixcart.com/image/416/416/xif0q/mobile/h/d/9/-original-imaghx9qkugtbfrn.jpeg",
+  },
+  {
+    id: 3,
+    name: "Boat Headphones",
+    price: 4999,
+    category: "Accessories",
+    image:
+      "https://rukminim2.flixcart.com/image/416/416/xif0q/headphone/j/q/1/-original-imaghbdup9jbrdzh.jpeg",
+  },
+  {
+    id: 4,
+    name: "Smart Watch",
+    price: 6999,
+    category: "Accessories",
+    image:
+      "https://rukminim2.flixcart.com/image/416/416/xif0q/smartwatch/8/x/0/-original-imagkqcqz6bg3zfy.jpeg",
+  },
 ];
 
 /* ===========================
-   HEADER COMPONENT
+   HEADER
 =========================== */
-function Header({ cartCount }) {
+function Header({ cartCount, search, setSearch }) {
   return (
-    <header style={styles.header}>
-      <h1>🛒 DevOps E-Commerce</h1>
-      <div>Cart Items: {cartCount}</div>
-    </header>
+    <div style={styles.header}>
+      <h2>🛍 Flipkart DevOps</h2>
+      <input
+        placeholder="Search products..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={styles.search}
+      />
+      <div>🛒 {cartCount}</div>
+    </div>
   );
 }
 
@@ -32,65 +62,44 @@ function Header({ cartCount }) {
 function ProductCard({ product, onAdd }) {
   return (
     <div style={styles.card}>
-      <h3>{product.name}</h3>
-      <p>₹ {product.price}</p>
-      <p>{product.category}</p>
-      <button onClick={() => onAdd(product)}>Add to Cart</button>
+      <img src={product.image} alt={product.name} style={styles.image} />
+      <h4>{product.name}</h4>
+      <p style={styles.price}>₹ {product.price}</p>
+      <span style={styles.category}>{product.category}</span>
+      <button style={styles.btn} onClick={() => onAdd(product)}>
+        Add to Cart
+      </button>
     </div>
   );
 }
 
 /* ===========================
-   PRODUCT LIST
+   CART
 =========================== */
-function ProductList({ products, onAdd }) {
-  return (
-    <div style={styles.grid}>
-      {products.map((p) => (
-        <ProductCard key={p.id} product={p} onAdd={onAdd} />
-      ))}
-    </div>
+function Cart({ cart, increase, decrease }) {
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
   );
-}
 
-/* ===========================
-   CART COMPONENT
-=========================== */
-function Cart({ cart, onRemove }) {
   return (
     <div style={styles.cart}>
-      <h2>🧺 Cart</h2>
-      {cart.length === 0 && <p>No items in cart</p>}
-      {cart.map((item, index) => (
-        <div key={index} style={styles.cartItem}>
+      <h3>🧺 Cart</h3>
+      {cart.length === 0 && <p>No items</p>}
+
+      {cart.map((item) => (
+        <div key={item.id} style={styles.cartItem}>
           <span>{item.name}</span>
-          <span>₹ {item.price}</span>
-          <button onClick={() => onRemove(index)}>Remove</button>
+          <div>
+            <button onClick={() => decrease(item.id)}>-</button>
+            <span style={{ margin: "0 8px" }}>{item.qty}</span>
+            <button onClick={() => increase(item.id)}>+</button>
+          </div>
+          <span>₹ {item.price * item.qty}</span>
         </div>
       ))}
-    </div>
-  );
-}
 
-/* ===========================
-   FILTER BAR
-=========================== */
-function FilterBar({ setCategory, setSort }) {
-  return (
-    <div style={styles.filter}>
-      <select onChange={(e) => setCategory(e.target.value)}>
-        <option value="ALL">All</option>
-        <option value="Laptop">Laptop</option>
-        <option value="Mobile">Mobile</option>
-        <option value="Accessories">Accessories</option>
-        <option value="Camera">Camera</option>
-        <option value="Tablet">Tablet</option>
-      </select>
-
-      <select onChange={(e) => setSort(e.target.value)}>
-        <option value="ASC">Price Low → High</option>
-        <option value="DESC">Price High → Low</option>
-      </select>
+      <h4>Total: ₹ {total}</h4>
     </div>
   );
 }
@@ -101,80 +110,125 @@ function FilterBar({ setCategory, setSort }) {
 function App() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
-  const [category, setCategory] = useState("ALL");
-  const [sort, setSort] = useState("ASC");
+  const [search, setSearch] = useState("");
 
-  /* MOCK API CALL */
   useEffect(() => {
-    setTimeout(() => {
-      setProducts(PRODUCTS);
-    }, 500);
+    setProducts(PRODUCTS);
   }, []);
 
-  /* FILTER + SORT LOGIC */
-  const filteredProducts = products
-    .filter((p) => category === "ALL" || p.category === category)
-    .sort((a, b) =>
-      sort === "ASC" ? a.price - b.price : b.price - a.price
-    );
-
   const addToCart = (product) => {
-    setCart([...cart, product]);
+    const found = cart.find((i) => i.id === product.id);
+    if (found) {
+      setCart(
+        cart.map((i) =>
+          i.id === product.id ? { ...i, qty: i.qty + 1 } : i
+        )
+      );
+    } else {
+      setCart([...cart, { ...product, qty: 1 }]);
+    }
   };
 
-  const removeFromCart = (index) => {
-    const updated = [...cart];
-    updated.splice(index, 1);
-    setCart(updated);
+  const increase = (id) => {
+    setCart(
+      cart.map((i) =>
+        i.id === id ? { ...i, qty: i.qty + 1 } : i
+      )
+    );
   };
+
+  const decrease = (id) => {
+    setCart(
+      cart
+        .map((i) =>
+          i.id === id ? { ...i, qty: i.qty - 1 } : i
+        )
+        .filter((i) => i.qty > 0)
+    );
+  };
+
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div style={styles.app}>
-      <Header cartCount={cart.length} />
-      <FilterBar setCategory={setCategory} setSort={setSort} />
-      <ProductList products={filteredProducts} onAdd={addToCart} />
-      <Cart cart={cart} onRemove={removeFromCart} />
+    <div>
+      <Header
+        cartCount={cart.length}
+        search={search}
+        setSearch={setSearch}
+      />
+
+      <div style={styles.grid}>
+        {filtered.map((p) => (
+          <ProductCard key={p.id} product={p} onAdd={addToCart} />
+        ))}
+      </div>
+
+      <Cart cart={cart} increase={increase} decrease={decrease} />
     </div>
   );
 }
 
 /* ===========================
-   STYLES (INLINE)
+   STYLES
 =========================== */
 const styles = {
-  app: { fontFamily: "Arial", padding: 20 },
   header: {
-    display: "flex",
-    justifyContent: "space-between",
-    background: "#222",
+    background: "#2874f0",
     color: "#fff",
     padding: 15,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    justifyContent: "space-between",
+  },
+  search: {
+    padding: 6,
+    width: 250,
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: 15,
-    marginTop: 20,
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: 20,
+    padding: 20,
   },
   card: {
     border: "1px solid #ddd",
     padding: 15,
     borderRadius: 8,
+    textAlign: "center",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   },
-  filter: {
-    display: "flex",
-    gap: 10,
-    marginTop: 15,
+  image: {
+    width: "100%",
+    height: 180,
+    objectFit: "contain",
+  },
+  price: {
+    fontWeight: "bold",
+    color: "#388e3c",
+  },
+  category: {
+    fontSize: 12,
+    color: "#555",
+  },
+  btn: {
+    background: "#ff9f00",
+    border: "none",
+    padding: 8,
+    marginTop: 10,
+    cursor: "pointer",
+    fontWeight: "bold",
   },
   cart: {
-    marginTop: 30,
     borderTop: "2px solid #000",
-    paddingTop: 10,
+    padding: 20,
   },
   cartItem: {
     display: "flex",
     justifyContent: "space-between",
-    marginTop: 8,
+    marginBottom: 8,
   },
 };
 
